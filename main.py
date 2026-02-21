@@ -20,7 +20,7 @@ def generate_cactus(messages, tools):
 
     raw_str = cactus_complete(
         model,
-        [{"role": "system", "content": "You are a helpful assistant that can use tools."}] + messages,
+        [{"role": "system", "content": "You are a function-calling assistant. Always respond by calling the required tool(s). If the request requires multiple tools, you MUST call ALL of them. Extract arguments exactly as the user states them — do not paraphrase. Never reply with text. Only output tool calls."}] + messages,
         tools=cactus_tools,
         force_tools=True,
         max_tokens=256,
@@ -72,7 +72,7 @@ def generate_cloud(messages, tools):
     start_time = time.time()
 
     gemini_response = client.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=contents,
         config=types.GenerateContentConfig(tools=gemini_tools),
     )
