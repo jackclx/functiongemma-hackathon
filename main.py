@@ -95,7 +95,15 @@ def generate_cloud(messages, tools):
 
 
 def generate_hybrid(messages, tools, confidence_threshold=0.99):
-    """Baseline hybrid inference strategy; fall back to cloud if Cactus Confidence is below threshold."""
+    """Hybrid: proactive cloud for 3+ tools or multi-intent; else try on-device, fall back to cloud."""
+    # Proactive cloud for hard cases — skip local to save time and get better F1
+    message_text = messages[-1]["content"] if messages else ""
+    has_multi_intent = any(word in message_text.lower() for word in [" and ", ",", " also "])
+    if len(tools) >= 3 or has_multi_intent:
+        cloud = generate_cloud(messages, tools)
+        cloud["source"] = "cloud (fallback)"
+        return cloud
+
     local = generate_cactus(messages, tools)
 
     if local["confidence"] >= confidence_threshold:
